@@ -1,5 +1,6 @@
 "use client";
 
+import { PHOTO_BUCKET } from "@/lib/config"; // merge into your existing config import: FEED_LIMIT, PHOTO_BUCKET
 import { useCallback, useEffect, useState } from "react";
 import Avatar from "./Avatar";
 import PostFeed from "./PostFeed";
@@ -76,35 +77,39 @@ export default function Wall() {
     void loadPosts();
   }, [loadPosts]);
 
-  // Realtime: new rows appear without a refresh
-  useEffect(() => {
-    if (!isSupabaseConfigured) {
-      setLive("offline");
-      return;
-    }
+    // Realtime: new rows appear without a refresh
+    useEffect(() => {
+        if (!isSupabaseConfigured) {
+            setLive("offline");
+            return;
+        }
+        const channel = supabase
+            .channel("posts-feed")
+            .on(
+                "postgres_changes",
+                { event: "INSERT", schema: "public", table: "posts" },
+                (payload) => addPost(payload.new as Post),
+            )
+            .subscribe((status) => {
+                if (status === "SUBSCRIBED") setLive("live");
+                else if (status === "CLOSED" || status === "CHANNEL_ERROR" || status === "TIMED_OUT")
+                    setLive("offline");
+                else setLive("connecting");
+            });
 
-    setNow(Date.now());
-    const timer = setInterval(() => setNow(Date.now()), 30_000);
-    return () => clearInterval(timer);
+        return () => {
+            void supabase.removeChannel(channel);
+        };
+    }, [addPost]);
 
-    const channel = supabase
-      .channel("posts-feed")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "posts" },
-        (payload) => addPost(payload.new as Post),
-      )
-      .subscribe((status) => {
-        if (status === "SUBSCRIBED") setLive("live");
-        else if (status === "CLOSED" || status === "CHANNEL_ERROR" || status === "TIMED_OUT")
-          setLive("offline");
-        else setLive("connecting");
-      });
+    // Keep "3 minutes ago" labels fresh (also sets the initial value)
+    useEffect(() => {
+        setNow(Date.now());
+        const timer = setInterval(() => setNow(Date.now()), 30_000);
+        return () => clearInterval(timer);
+    }, []);
 
-    return () => {
-      void supabase.removeChannel(channel);
-    };
-  }, [addPost]);
+
 
   // Keep "3 minutes ago" labels fresh
   useEffect(() => {
@@ -112,16 +117,31 @@ export default function Wall() {
     return () => clearInterval(timer);
   }, []);
 
-  async function handleShare(body: string) {
-    if (!isSupabaseConfigured) throw new Error(MISSING_KEYS);
-    const { data, error } = await supabase
-      .from("posts")
-      .insert({ body })
-      .select()
-      .single();
-    if (error) throw new Error(error.message);
-    addPost(data as Post);
-  }
+    async function handleShare(body: string, authorName: string, photo: File | null) {
+        if (!isSupabaseConfigured) throw new Error(MISSING_KEYS);
+
+        let image_url: string | null = null;
+        if (photo) {
+            const ext = (photo.name.split(".").pop() || "jpg").toLowerCase();
+            const path = `${crypto.randomUUID()}.${ext}`;
+            const { error: upErr } = await supabase.storage
+                .from(PHOTO_BUCKET)
+                .upload(path, photo, { contentType: photo.type, cacheControl: "3600" });
+            if (upErr) {
+                console.error("Photo upload failed:", upErr);
+                throw new Error(`Failed to upload photo. Please try again. (${upErr.message})`);
+            }
+            image_url = supabase.storage.from(PHOTO_BUCKET).getPublicUrl(path).data.publicUrl;
+        }
+
+        const { data, error } = await supabase
+            .from("posts")
+            .insert({ body, author_name: authorName || null, image_url })
+            .select()
+            .single();
+        if (error) throw new Error(error.message);
+        addPost(data as Post);
+    }
 
   return (
     <div className="min-h-screen bg-white">

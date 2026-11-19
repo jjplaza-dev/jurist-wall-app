@@ -78,9 +78,22 @@ export default function PostFeed({
           <Avatar size={50} />
           <div className="min-w-0 flex-1">
             <p className="whitespace-pre-wrap break-words">
-              <span className="font-bold text-[#3b5998]">{AUTHOR_NAME}</span>{" "}
+  <span className="font-bold text-[#3b5998]">
+    {post.author_name || AUTHOR_NAME}
+  </span>{" "}
               {post.body}
             </p>
+            {post.image_url && (
+                <a href={post.image_url} target="_blank" rel="noreferrer" className="mt-2 block">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                      src={post.image_url}
+                      alt={`Photo posted by ${post.author_name || AUTHOR_NAME}`}
+                      loading="lazy"
+                      className="max-h-[360px] max-w-full border border-[#ccc] bg-white p-1"
+                  />
+                </a>
+            )}
             <time
               dateTime={post.created_at}
               title={formatFullTime(post.created_at)}

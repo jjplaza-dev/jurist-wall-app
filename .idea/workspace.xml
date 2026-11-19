@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="887976fa-114a-487c-b977-dea0a475073d" name="Changes" comment="" />
+    <list default="true" id="887976fa-114a-487c-b977-dea0a475073d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/PostFeed.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/PostFeed.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/PostForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/PostForm.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/Wall.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/Wall.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/types.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -66,11 +73,14 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1795050773388</updated>
-      <workItem from="1795050774418" duration="1624000" />
+      <workItem from="1795050774418" duration="4901000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName=".env" />
   </component>
 </project>
